@@ -2,14 +2,14 @@
 # these are the default tags for images; you may want to change those
 # according to the version you are installing
 
-images:
-  tags:
-    bootstrap: "docker.io/openstackhelm/heat:2023.1-ubuntu_jammy"
-    db_init: "docker.io/openstackhelm/heat:2023.1-ubuntu_jammy"
-    db_drop: "docker.io/openstackhelm/heat:2023.1-ubuntu_jammy"
-    ks_user: "docker.io/openstackhelm/heat:2023.1-ubuntu_jammy"
-    ks_endpoints: "docker.io/openstackhelm/heat:2023.1-ubuntu_jammy"
-    octavia_health_manager_init: "docker.io/openstackhelm/heat:2023.1-ubuntu_jammy"
+#images:
+#  tags:
+#    bootstrap: "docker.io/openstackhelm/heat:2023.1-ubuntu_jammy"
+#    db_init: "docker.io/openstackhelm/heat:2023.1-ubuntu_jammy"
+#    db_drop: "docker.io/openstackhelm/heat:2023.1-ubuntu_jammy"
+#    ks_user: "docker.io/openstackhelm/heat:2023.1-ubuntu_jammy"
+#    ks_endpoints: "docker.io/openstackhelm/heat:2023.1-ubuntu_jammy"
+#    octavia_health_manager_init: "docker.io/openstackhelm/heat:2023.1-ubuntu_jammy"
 
 {% if octavia_create_certs %}
 pod:
@@ -17,6 +17,8 @@ pod:
     octavia_api:
       octavia_api:
         volumeMounts:
+          - name: pod-run-octavia
+            mountPath: /var/run/octavia
           - name: octavia-certs
             mountPath: /etc/octavia/certs/private/server_ca.key.pem
             subPath: server_ca.key.pem
@@ -30,6 +32,8 @@ pod:
             mountPath: /etc/octavia/certs/private/client.key-and-cert.pem
             subPath: client.key-and-cert.pem
         volumes:
+          - name: pod-run-octavia
+            emptyDir: {}
           - name: octavia-certs
             secret:
               secretName: octavia-certs
@@ -37,6 +41,8 @@ pod:
     octavia_worker:
       octavia_worker:
         volumeMounts:
+          - name: pod-run-octavia
+            mountPath: /var/run/octavia
           - name: octavia-certs
             mountPath: /etc/octavia/certs/private/server_ca.key.pem
             subPath: server_ca.key.pem
@@ -50,6 +56,8 @@ pod:
             mountPath: /etc/octavia/certs/private/client.key-and-cert.pem
             subPath: client.key-and-cert.pem
         volumes:
+          - name: pod-run-octavia
+            emptyDir: {}
           - name: octavia-certs
             secret:
               secretName: octavia-certs

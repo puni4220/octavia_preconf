@@ -39,7 +39,7 @@ octavia_create_certs: true
 octavia_certs_dir: "{{ lookup('env', 'HOME') }}/octavia_certs"
 octavia_cert_key_bits: 4096
 octavia_key_type: "RSA"
-octavia_key_passwd: 'not-secure-passphrase'
+#octavia_key_passwd: 'not-secure-passphrase'
 
 octavia_server_ca_subj: '/C=US/ST=Texas/L=Local/O=RPC/OU=Racklab/CN=ServerRootCA'
 octavia_client_ca_subj: '/C=US/ST=Texas/L=Local/O=RPC/OU=Racklab/CN=ClientRootCA'

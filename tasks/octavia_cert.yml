@@ -5,11 +5,16 @@
 # CA(s) for which certificates and keys will be 
 # created; client CA will be used to generate client
 # certificate
+- name: Obtain the passphrase for octavia private key
+  shell:
+    cmd: kubectl get secret -n openstack octavia-certificates -o jsonpath='{.data.password}' | base64 -d
+  register: octavia_key_passwd
+
 - name: Generate Server CA private key
   community.crypto.openssl_privatekey:
     path: "{{ octavia_serverca_privkey }}"
     state: present
-    passphrase: "{{ octavia_key_passwd }}"
+    passphrase: "{{ octavia_key_passwd.stdout }}"
     size: "{{ octavia_cert_key_bits }}"
     cipher: "auto"
     type: "{{ octavia_key_type }}"
@@ -19,7 +24,7 @@
     openssl req -config {{ octavia_certs_dir }}/openssl.cnf -key {{ octavia_serverca_privkey }} \
     -new -x509 -days {{ octavia_ca_valid_period }} -sha256 -extensions v3_ca \
     -subj "{{ octavia_server_ca_subj }}" -out {{ octavia_server_ca_cert }} \
-    -passin pass:'{{ octavia_key_passwd }}'
+    -passin pass:'{{ octavia_key_passwd.stdout }}'
   args:
     chdir: "{{ octavia_certs_dir }}"
     creates: "{{ octavia_server_ca_cert }}"
@@ -28,7 +33,7 @@
   community.crypto.openssl_privatekey:
     path: "{{ octavia_clientca_privkey }}"
     state: present
-    passphrase: "{{ octavia_key_passwd }}"
+    passphrase: "{{ octavia_key_passwd.stdout }}"
     size: "{{ octavia_cert_key_bits }}"
     cipher: "auto"
     type: "{{ octavia_key_type }}"
@@ -38,7 +43,7 @@
     openssl req -config {{ octavia_certs_dir }}/openssl.cnf -key {{ octavia_clientca_privkey }} \
     -new -x509 -days {{ octavia_ca_valid_period }} -sha256 -extensions v3_ca \
     -subj "{{ octavia_client_ca_subj }}" -out {{ octavia_client_ca_cert }} \
-    -passin pass:'{{ octavia_key_passwd }}'
+    -passin pass:'{{ octavia_key_passwd.stdout }}'
   args:
     chdir: "{{ octavia_certs_dir }}"
     creates: "{{ octavia_client_ca_cert }}"
@@ -63,7 +68,7 @@
 
 - name: Create Client cert (octavia-worker)
   shell: >
-    openssl ca -passin pass:'{{ octavia_key_passwd }}' -config {{ octavia_certs_dir }}/openssl.cnf -extensions usr_cert \
+    openssl ca -passin pass:'{{ octavia_key_passwd.stdout }}' -config {{ octavia_certs_dir }}/openssl.cnf -extensions usr_cert \
     -notext -md sha256 -days {{ octavia_client_cert_valid_period }} -in {{ octavia_client_csr }} \
     -out {{ octavia_client_cert }} -batch
   args:
