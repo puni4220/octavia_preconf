@@ -116,7 +116,7 @@ conf:
     certificates:
       ca_certificate: /etc/octavia/certs/server_ca.cert.pem
       ca_private_key: /etc/octavia/certs/private/server_ca.key.pem
-      ca_private_key_passphrase: {{ octavia_key_passwd }}
+      ca_private_key_passphrase: {{ octavia_key_passwd.stdout }}
 {% endif %}
     controller_worker:
 {% if octavia_create_certs %}
