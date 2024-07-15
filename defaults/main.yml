@@ -34,8 +34,12 @@ amphora_flavor_name: m1.amphora
 amphora_image_version: focal
 amphora_image_name: amphora-ubuntu-{{ amphora_image_version }}
 
+# enable volume mounts for ovn provider
+enable_ovn_provider: true
+
 # these are the defaults for certs
-octavia_create_certs: true
+#octavia_create_certs: true
+force_regen_certs: false
 octavia_certs_dir: "{{ lookup('env', 'HOME') }}/octavia_certs"
 octavia_cert_key_bits: 4096
 octavia_key_type: "RSA"

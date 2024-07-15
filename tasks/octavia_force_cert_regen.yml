@@ -1,0 +1,26 @@
+---
+# These are the required tasks to force regen certs
+# they rely on the existing tasks to generate certificates
+# but remove the existing directories and take a backup
+# of the octavia-certificates secret
+
+- name: backup the existing certs for octavia
+  shell:
+    cmd: kubectl get secret -n openstack octavia-certs -o yaml | sed  "s/name{{':'}} .*/name{{':'}} octavia-certs-backup-$(date +%d-%m-%Y-%H-%M-%S)/g" | kubectl apply --force -f -
+
+- name: check if the cert directory exists
+  stat:
+    path: "{{ octavia_certs_dir }}"
+  register: _octavia_certs_dir
+
+- name: remove the existing cert directory if required
+  file:
+    state: absent
+    path: "{{ octavia_certs_dir }}"
+  when: _octavia_certs_dir.stat.isdir is defined and _octavia_certs_dir.stat.isdir
+
+- name: import tasks to create cert directories
+  import_tasks: octavia_cert_dir_setup.yml
+
+- name: import tasks to generate certificates 
+  import_tasks: octavia_cert.yml

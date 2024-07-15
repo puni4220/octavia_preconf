@@ -11,14 +11,15 @@
 #    ks_endpoints: "docker.io/openstackhelm/heat:2023.1-ubuntu_jammy"
 #    octavia_health_manager_init: "docker.io/openstackhelm/heat:2023.1-ubuntu_jammy"
 
-{% if octavia_create_certs %}
 pod:
   mounts:
     octavia_api:
       octavia_api:
         volumeMounts:
+{% if enable_ovn_provider %}
           - name: pod-run-octavia
             mountPath: /var/run/octavia
+{% endif %}
           - name: octavia-certs
             mountPath: /etc/octavia/certs/private/server_ca.key.pem
             subPath: server_ca.key.pem
@@ -32,8 +33,10 @@ pod:
             mountPath: /etc/octavia/certs/private/client.key-and-cert.pem
             subPath: client.key-and-cert.pem
         volumes:
+{% if enable_ovn_provider %}
           - name: pod-run-octavia
             emptyDir: {}
+{% endif %}
           - name: octavia-certs
             secret:
               secretName: octavia-certs
@@ -41,8 +44,10 @@ pod:
     octavia_worker:
       octavia_worker:
         volumeMounts:
+{% if enable_ovn_provider %}
           - name: pod-run-octavia
             mountPath: /var/run/octavia
+{%  endif %}
           - name: octavia-certs
             mountPath: /etc/octavia/certs/private/server_ca.key.pem
             subPath: server_ca.key.pem
@@ -56,8 +61,10 @@ pod:
             mountPath: /etc/octavia/certs/private/client.key-and-cert.pem
             subPath: client.key-and-cert.pem
         volumes:
+{% if enable_ovn_provider %}
           - name: pod-run-octavia
             emptyDir: {}
+{% endif %}
           - name: octavia-certs
             secret:
               secretName: octavia-certs
@@ -102,26 +109,15 @@ pod:
             secret:
               secretName: octavia-certs
               defaultMode: 0644
-{% else %}
-# please generate the certificates required for octavia;
-# check the default values.yaml file provided with the helm
-# chart for details about the required overrides for octavia
-# pods to bind mount the required certificates before installing
-# this helm chart
-{% endif %}
 
 conf:
   octavia:
-{% if octavia_create_certs %}
     certificates:
       ca_certificate: /etc/octavia/certs/server_ca.cert.pem
       ca_private_key: /etc/octavia/certs/private/server_ca.key.pem
       ca_private_key_passphrase: {{ octavia_key_passwd.stdout }}
-{% endif %}
     controller_worker:
-{% if octavia_create_certs %}
       client_ca: /etc/octavia/certs/client_ca.cert.pem
-{% endif %}
       amp_image_owner_id: {{ _amphora_image_info.images[0].owner }}
       amp_secgroup_list: {{ _amphora_sec_group_info.security_groups[0].id }}
       amp_flavor_id: {{ _amphora_flavor_info.flavors[0].id }}
@@ -130,11 +126,9 @@ conf:
 {% if amphora_ssh_enabled %}
       amp_ssh_key_name: {{ amphora_ssh_key_name }}
 {% endif %}
-{% if octavia_create_certs %}
     haproxy_amphora:
       client_cert: /etc/octavia/certs/private/client.key-and-cert.pem
       server_ca: /etc/octavia/certs/server_ca.cert.pem
-{% endif %}
     health_manager:
       bind_port: 5555
       bind_ip: 0.0.0.0
