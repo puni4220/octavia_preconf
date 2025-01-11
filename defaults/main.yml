@@ -73,4 +73,4 @@ client_cert_OU: "Rackerlab"
 octavia_client_cert_valid_period: 1096
 
 # octavia helm values for amphora provider
-octavia_helm_values_file: "{{ lookup('env', 'HOME') }}/2023.1-ubuntu_jammy.yaml"
+octavia_helm_values_file: "{{ lookup('env', 'HOME') }}/octavia_amphora_provider.yaml"

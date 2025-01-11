@@ -29,9 +29,23 @@
     interface: public
   register: _amphora_lb_net_info
 
+- name: Obtain the password from the octavia-certificates secret
+  k8s_info:
+    kind: Secret
+    namespace: openstack
+    name: octavia-certificates
+  register: _octavia_cert_passwd
+
+- debug:
+    msg: "octavia cert password {{ _octavia_cert_passwd.resources[0].data.password | b64decode }}"
+
+- name: decode the secret for the octavia cert password
+  set_fact:
+    cert_passwd: "{{  _octavia_cert_passwd.resources[0].data.password | b64decode }}"
+
 - name: Create the helm values file for amphora provider
   template:
-    src: templates/2023.1-ubuntu_jammy.yaml.j2
+    src: templates/octavia_amphora_provider.yaml.j2
     dest: "{{ octavia_helm_values_file }}"
 
 - debug:
