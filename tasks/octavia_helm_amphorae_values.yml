@@ -36,9 +36,6 @@
     name: octavia-certificates
   register: _octavia_cert_passwd
 
-- debug:
-    msg: "octavia cert password {{ _octavia_cert_passwd.resources[0].data.password | b64decode }}"
-
 - name: decode the secret for the octavia cert password
   set_fact:
     cert_passwd: "{{  _octavia_cert_passwd.resources[0].data.password | b64decode }}"
