@@ -23,7 +23,7 @@
     cidr: "{{ lb_mgmt_subnet_cidr }}"
     allocation_pool_start: "{{ lb_mgmt_subnet_pool_start }}"
     allocation_pool_end: "{{ lb_mgmt_subnet_pool_end }}"
-    gateway_ip: "{{ lb_mgmt_subnet_gateway }}"
+    disable_gateway_ip: true
     network_name: lb-mgmt-net
     interface: public
   register: create_lb_mgmt_subnet
